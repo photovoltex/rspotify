@@ -484,6 +484,7 @@ pub enum PlayContextId<'a> {
     Album(AlbumId<'a>),
     Playlist(PlaylistId<'a>),
     Show(ShowId<'a>),
+    Collection(UserId<'a>),
 }
 // These don't work with `enum_dispatch`, unfortunately.
 impl<'a> PlayContextId<'a> {
@@ -494,6 +495,7 @@ impl<'a> PlayContextId<'a> {
             PlayContextId::Album(x) => PlayContextId::Album(x.as_ref()),
             PlayContextId::Playlist(x) => PlayContextId::Playlist(x.as_ref()),
             PlayContextId::Show(x) => PlayContextId::Show(x.as_ref()),
+            PlayContextId::Collection(x) => PlayContextId::Collection(x.as_ref()),
         }
     }
 
@@ -504,6 +506,7 @@ impl<'a> PlayContextId<'a> {
             PlayContextId::Album(x) => PlayContextId::Album(x.into_static()),
             PlayContextId::Playlist(x) => PlayContextId::Playlist(x.into_static()),
             PlayContextId::Show(x) => PlayContextId::Show(x.into_static()),
+            PlayContextId::Collection(x) => PlayContextId::Collection(x.into_static()),
         }
     }
 
@@ -514,6 +517,7 @@ impl<'a> PlayContextId<'a> {
             PlayContextId::Album(x) => PlayContextId::Album(x.clone_static()),
             PlayContextId::Playlist(x) => PlayContextId::Playlist(x.clone_static()),
             PlayContextId::Show(x) => PlayContextId::Show(x.clone_static()),
+            PlayContextId::Collection(x) => PlayContextId::Collection(x.clone_static()),
         }
     }
 }

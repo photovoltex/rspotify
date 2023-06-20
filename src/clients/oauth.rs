@@ -1033,8 +1033,13 @@ pub trait OAuthClient: BaseClient {
         offset: Option<Offset>,
         position: Option<chrono::Duration>,
     ) -> ClientResult<()> {
+        let mut uri = context_uri.uri();
+        if matches!(context_uri, PlayContextId::Collection(_)) {
+            uri.push_str(":collection")
+        }
+
         let params = JsonBuilder::new()
-            .required("context_uri", context_uri.uri())
+            .required("context_uri", uri)
             .optional(
                 "offset",
                 offset.map(|x| match x {
