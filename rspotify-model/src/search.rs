@@ -1,5 +1,6 @@
 //! All object related to search
 
+use serde_with::{serde_as, EnumMap};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -43,6 +44,11 @@ pub struct SearchShows {
 pub struct SearchEpisodes {
     pub episodes: Page<SimplifiedEpisode>,
 }
+
+#[serde_as]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+
+pub struct SearchResults(#[serde_as(as = "EnumMap")] pub Vec<SearchResult>);
 
 /// Search result of any kind
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]

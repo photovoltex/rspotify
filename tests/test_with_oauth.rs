@@ -521,6 +521,24 @@ async fn test_search_show() {
 
 #[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
 #[ignore]
+async fn test_search_multiple() {
+    let types = vec![
+        SearchType::Album,
+        SearchType::Artist,
+        SearchType::Playlist,
+        SearchType::Track,
+    ];
+
+    let query = "nonstop";
+    oauth_client()
+        .await
+        .search_multiple(query, types, None, None, Some(10), Some(0))
+        .await
+        .unwrap();
+}
+
+#[maybe_async::test(feature = "__sync", async(feature = "__async", tokio::test))]
+#[ignore]
 async fn test_seek_track() {
     let client = oauth_client().await;
 
