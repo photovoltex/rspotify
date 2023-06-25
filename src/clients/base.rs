@@ -398,14 +398,14 @@ where
     ///
     /// Parameters:
     /// - q - the search query
-    /// - limit  - the number of items to return
-    /// - offset - the index of the first item to return
     /// - type - the type of item to return. One of 'artist', 'album', 'track',
     ///  'playlist', 'show' or 'episode'
     /// - market - An ISO 3166-1 alpha-2 country code or the string from_token.
     /// - include_external: Optional.Possible values: audio. If
     ///   include_external=audio is specified the response will include any
     ///   relevant audio content that is hosted externally.  
+    /// - limit  - the number of items to return
+    /// - offset - the index of the first item to return
     ///
     /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/search)
     async fn search(
@@ -422,6 +422,55 @@ where
         let params = build_map([
             ("q", Some(q)),
             ("type", Some(_type.into())),
+            ("market", market.map(Into::into)),
+            ("include_external", include_external.map(Into::into)),
+            ("limit", limit.as_deref()),
+            ("offset", offset.as_deref()),
+        ]);
+
+        let result = self.api_get("search", &params).await?;
+        convert_result(&result)
+        // convert_result::<HashMap<String, SearchResult>>(&result).map(|mut map| {
+        //     let key = map.keys().last().expect("at least one").clone();
+        //     map.remove(&key).expect("at least one")
+        // })
+    }
+
+    /// Search for Items. Get Spotify catalog information about artists,
+    /// albums, tracks or playlists that match a keyword string.
+    ///
+    /// Parameters:
+    /// - q - the search query
+    /// - types - the types of item to return. One of 'artist', 'album', 'track',
+    ///  'playlist', 'show' or 'episode'
+    /// - market - An ISO 3166-1 alpha-2 country code or the string from_token.
+    /// - include_external: Optional.Possible values: audio. If
+    ///   include_external=audio is specified the response will include any
+    ///   relevant audio content that is hosted externally.  
+    /// - limit  - the number of items to return
+    /// - offset - the index of the first item to return
+    ///
+    /// [Reference](https://developer.spotify.com/documentation/web-api/reference/#/operations/search)
+    async fn search_multiple(
+        &self,
+        q: &str,
+        types: Vec<SearchType>,
+        market: Option<Market>,
+        include_external: Option<IncludeExternal>,
+        limit: Option<u32>,
+        offset: Option<u32>,
+    ) -> ClientResult<SearchResults> {
+        // would have liked to use .intersperse(",") but still unstable lib feature
+        let types = types
+            .into_iter()
+            .map(|ty| ty.into())
+            .collect::<Vec<&str>>()
+            .join(",");
+        let limit = limit.map(|s| s.to_string());
+        let offset = offset.map(|s| s.to_string());
+        let params = build_map([
+            ("q", Some(q)),
+            ("type", Some(&types)),
             ("market", market.map(Into::into)),
             ("include_external", include_external.map(Into::into)),
             ("limit", limit.as_deref()),
