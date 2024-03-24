@@ -1,4 +1,13 @@
-## 0.12 (unreleased )
+## 0.13.0 (2024.03.08)
+
+**New features**
+- ([#458](https://github.com/ramsayleung/rspotify/pull/458)) Support for the `wasm32-unknown-unknown` build target
+
+**Bugfixes**
+- ([#440](https://github.com/ramsayleung/rspotify/issues/440)) Add Smartwatch device type, fix for json parse error: unknown variant Smartwatch.
+- ([#447](https://github.com/ramsayleung/rspotify/pull/447)) Replace the deprecated `dotenv` crate with `dotenvy`
+
+## 0.13.0 (2023.08.26)
 **New features**
 - ([#390](https://github.com/ramsayleung/rspotify/pull/390)) The `scopes!` macro supports to split the scope by whitespace.
 - ([#418](https://github.com/ramsayleung/rspotify/pull/418)) Add a user-settable callback function whenever token is updated.
@@ -6,11 +15,14 @@
 **Breaking changes**
 - ([#409](https://github.com/ramsayleung/rspotify/pull/409)) Change type of `position` parameter in `playlist_add_items` endpoint from `Opinion<Duration>` to `Opinion<u32>`
 - ([#421](https://github.com/ramsayleung/rspotify/issues/421)) Change type of `AudioFeaturesPayload.audio_features` from `Vec<AudioFeatures>` to `Vec<Option<AudioFeatures>>`
+- ([#429](https://github.com/ramsayleung/rspotify/pull/429)) Enable Token refreshing by default.
+- ([#432](https://github.com/ramsayleung/rspotify/pull/432)) Add optional `market` field to `track`, `album`, `albums`, and `album_track[_manual]`. Make `market` field in `artist_top_tracks` optional.
 
 **Bugfixes**
 - ([#419](https://github.com/ramsayleung/rspotify/issues/419)) Base64url encode instead of plain base64 encode for PKCE challenge code.
 - ([#421](https://github.com/ramsayleung/rspotify/issues/421)) Filter `null`s on `tracks_features` requests
 - ([#424](https://github.com/ramsayleung/rspotify/pull/424)) Fix PKCE refresh token invalid error
+- ([#428](https://github.com/ramsayleung/rspotify/pull/428)) Fix PKCE url in doc
 
 ## 0.11.7 (2023.04.26)
 

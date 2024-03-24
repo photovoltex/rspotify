@@ -1,6 +1,7 @@
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use chrono::{DateTime, Duration};
 use rspotify::model::*;
 use serde::de::DeserializeOwned;
+use wasm_bindgen_test::*;
 
 #[track_caller]
 fn deserialize<T>(data: impl AsRef<str>) -> T
@@ -18,9 +19,54 @@ where
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_simplified_track() {
     let json_str = r#"
-{
+    {
+      "album": {
+        "album_type": "album",
+        "total_tracks": 11,
+        "available_markets": ["AR", "AU", "AT", "BE", "BO", "BR", "BG", "CA", "CL", "CO", "CR", "CY", "CZ", "DK", "DO", "DE", "EC", "EE", "SV", "FI", "FR", "GR", "GT", "HN", "HK", "HU", "IS", "IE", "IT", "LV", "LT", "LU", "MY", "MT", "MX", "NL", "NZ", "NI", "NO", "PA", "PY", "PE", "PH", "PL", "PT", "SG", "SK", "ES", "SE", "CH", "TW", "TR", "UY", "US", "GB", "AD", "LI", "MC", "ID", "JP", "TH", "VN", "RO", "IL", "ZA", "SA", "AE", "BH", "QA", "OM", "KW", "EG", "MA", "DZ", "TN", "LB", "JO", "PS", "IN", "BY", "KZ", "MD", "UA", "AL", "BA", "HR", "ME", "MK", "RS", "SI", "KR", "BD", "PK", "LK", "GH", "KE", "NG", "TZ", "UG", "AG", "AM", "BS", "BB", "BZ", "BT", "BW", "BF", "CV", "CW", "DM", "FJ", "GM", "GE", "GD", "GW", "GY", "HT", "JM", "KI", "LS", "LR", "MW", "MV", "ML", "MH", "FM", "NA", "NR", "NE", "PW", "PG", "WS", "SM", "ST", "SN", "SC", "SL", "SB", "KN", "LC", "VC", "SR", "TL", "TO", "TT", "TV", "VU", "AZ", "BN", "BI", "KH", "CM", "TD", "KM", "GQ", "SZ", "GA", "GN", "KG", "LA", "MO", "MR", "MN", "NP", "RW", "TG", "UZ", "ZW", "BJ", "MG", "MU", "MZ", "AO", "CI", "DJ", "ZM", "CD", "CG", "IQ", "LY", "TJ", "VE", "ET", "XK"],
+        "external_urls": {
+          "spotify": "https://open.spotify.com/album/6akEvsycLGftJxYudPjmqK"
+        },
+        "href": "https://api.spotify.com/v1/albums/6akEvsycLGftJxYudPjmqK",
+        "id": "6akEvsycLGftJxYudPjmqK",
+        "images": [
+          {
+            "url": "https://i.scdn.co/image/ab67616d0000b2731ae2bdc1378da1b440e1f610",
+            "height": 640,
+            "width": 640
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d00001e021ae2bdc1378da1b440e1f610",
+            "height": 300,
+            "width": 300
+          },
+          {
+            "url": "https://i.scdn.co/image/ab67616d000048511ae2bdc1378da1b440e1f610",
+            "height": 64,
+            "width": 64
+          }
+        ],
+        "name": "Place In The Sun",
+        "release_date": "2004-02-02",
+        "release_date_precision": "day",
+        "type": "album",
+        "uri": "spotify:album:6akEvsycLGftJxYudPjmqK",
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/08td7MxkoHQkXnWAYD8d6Q"
+            },
+            "href": "https://api.spotify.com/v1/artists/08td7MxkoHQkXnWAYD8d6Q",
+            "id": "08td7MxkoHQkXnWAYD8d6Q",
+            "name": "Tania Bowra",
+            "type": "artist",
+            "uri": "spotify:artist:08td7MxkoHQkXnWAYD8d6Q"
+          }
+        ]
+      },
     "artists": [ {
       "external_urls": {
         "spotify": "https://open.spotify.com/artist/08td7MxkoHQkXnWAYD8d6Q"
@@ -50,11 +96,12 @@ fn test_simplified_track() {
 
 "#;
     let track: SimplifiedTrack = deserialize(json_str);
-    let duration = Duration::milliseconds(276773);
+    let duration = Duration::try_milliseconds(276773).unwrap();
     assert_eq!(track.duration, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_public_user() {
     let json_str = r#"
         {
@@ -89,6 +136,7 @@ fn test_public_user() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_private_user() {
     let json_str = r#"
         {
@@ -119,6 +167,7 @@ fn test_private_user() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_full_artist() {
     let json_str = r#"
         {
@@ -153,6 +202,7 @@ fn test_full_artist() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_simplified_episode() {
     let json_str = r#"
         {
@@ -194,11 +244,12 @@ fn test_simplified_episode() {
         simplified_episode.release_date_precision,
         DatePrecision::Day
     );
-    let duration = Duration::milliseconds(2685023);
+    let duration = Duration::try_milliseconds(2685023).unwrap();
     assert_eq!(simplified_episode.duration, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_full_episode() {
     let json_str = r#"
     {
@@ -262,11 +313,12 @@ fn test_full_episode() {
         "#;
     let full_episode: FullEpisode = deserialize(json_str);
     assert_eq!(full_episode.release_date_precision, DatePrecision::Day);
-    let duration = Duration::milliseconds(1502795);
+    let duration = Duration::try_milliseconds(1502795).unwrap();
     assert_eq!(full_episode.duration, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_copyright() {
     let json_str = r#"
 	[ {
@@ -280,6 +332,7 @@ fn test_copyright() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_audio_analysis_section() {
     let json_str = r#"
         {
@@ -303,6 +356,7 @@ fn test_audio_analysis_section() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_audio_analysis_segments() {
     let json_str = r#"
          {
@@ -327,6 +381,7 @@ fn test_audio_analysis_segments() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_actions() {
     let json_str = r#"
         {
@@ -340,6 +395,7 @@ fn test_actions() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_recommendations_seed() {
     let json_str = r#"
         {
@@ -356,6 +412,7 @@ fn test_recommendations_seed() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_full_playlist() {
     let json_str_images = r#"
 [
@@ -493,6 +550,7 @@ fn test_full_playlist() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_audio_features() {
     let json = r#"
     {
@@ -517,11 +575,12 @@ fn test_audio_features() {
     }
     "#;
     let audio_features: AudioFeatures = deserialize(json);
-    let duration = Duration::milliseconds(255349);
+    let duration = Duration::try_milliseconds(255349).unwrap();
     assert_eq!(audio_features.duration, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_full_track() {
     let json = r#"
     {
@@ -596,11 +655,12 @@ fn test_full_track() {
 }
     "#;
     let full_track: FullTrack = deserialize(json);
-    let duration = Duration::milliseconds(207959);
+    let duration = Duration::try_milliseconds(207959).unwrap();
     assert_eq!(full_track.duration, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_resume_point() {
     let json = r#"
     {
@@ -609,11 +669,12 @@ fn test_resume_point() {
     }   
     "#;
     let resume_point: ResumePoint = deserialize(json);
-    let duration = Duration::milliseconds(423432);
+    let duration = Duration::try_milliseconds(423432).unwrap();
     assert_eq!(resume_point.resume_position, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_resume_point_negative() {
     let json = r#"
     {
@@ -622,11 +683,12 @@ fn test_resume_point_negative() {
     }
     "#;
     let resume_point: ResumePoint = deserialize(json);
-    let duration = Duration::milliseconds(-1000);
+    let duration = Duration::try_milliseconds(-1000).unwrap();
     assert_eq!(resume_point.resume_position, duration);
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_currently_playing_context() {
     let json = r#"
 {
@@ -730,17 +792,15 @@ fn test_currently_playing_context() {
     let timestamp = 1607769168429;
     let second: i64 = (timestamp - timestamp % 1000) / 1000;
     let nanosecond = (timestamp % 1000) * 1000000;
-    let dt = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp_opt(second, nanosecond as u32).unwrap(),
-        Utc,
-    );
+    let dt = DateTime::from_timestamp(second, nanosecond as u32).unwrap();
     assert_eq!(currently_playing_context.timestamp, dt);
 
-    let duration = Duration::milliseconds(22270);
+    let duration = Duration::try_milliseconds(22270).unwrap();
     assert_eq!(currently_playing_context.progress, Some(duration));
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_current_playback_context() {
     let json = r#"
 {
@@ -845,15 +905,13 @@ fn test_current_playback_context() {
     let timestamp = 1607774342714;
     let second: i64 = (timestamp - timestamp % 1000) / 1000;
     let nanosecond = (timestamp % 1000) * 1000000;
-    let dt = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp_opt(second, nanosecond as u32).unwrap(),
-        Utc,
-    );
+    let dt = DateTime::from_timestamp(second, nanosecond as u32).unwrap();
     assert_eq!(current_playback_context.timestamp, dt);
     assert!(current_playback_context.progress.is_none());
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_current_user_queue() {
     let json = r#"
   {
@@ -1045,6 +1103,7 @@ fn test_current_user_queue() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_audio_analysis_track() {
     let json = r#"
   {
@@ -1081,6 +1140,7 @@ fn test_audio_analysis_track() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_simplified_playlist() {
     let json = r#"
   {
@@ -1129,6 +1189,7 @@ fn test_simplified_playlist() {
 }
 
 #[test]
+#[wasm_bindgen_test]
 fn test_collectionyourepisodes_type() {
     let json = r#"
 {

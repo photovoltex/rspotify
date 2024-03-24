@@ -4,7 +4,7 @@ use crate::{
     http::{Form, HttpClient},
     join_scopes, params,
     sync::Mutex,
-    ClientResult, Config, Credentials, OAuth, Token,
+    ClientError, ClientResult, Config, Credentials, OAuth, Token,
 };
 
 use std::collections::HashMap;
@@ -72,7 +72,8 @@ pub struct AuthCodeSpotify {
 }
 
 /// This client has access to the base methods.
-#[maybe_async]
+#[cfg_attr(target_arch = "wasm32", maybe_async(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), maybe_async)]
 impl BaseClient for AuthCodeSpotify {
     fn get_http(&self) -> &HttpClient {
         &self.http
@@ -108,21 +109,26 @@ impl BaseClient for AuthCodeSpotify {
                     .expect("No client secret set in the credentials.");
                 let mut token = self.fetch_access_token(&data, Some(&headers)).await?;
 
+                token.refresh_token = Some(refresh_token.to_string());
+
                 if let Some(callback_fn) = &*self.get_config().token_callback_fn.clone() {
                     callback_fn.0(token.clone())?;
                 }
 
-                token.refresh_token = Some(refresh_token.to_string());
                 Ok(Some(token))
             }
-            _ => Ok(None),
+            _ => {
+                log::warn!("Can not refresh token! Token missing!");
+                Err(ClientError::InvalidToken)
+            }
         }
     }
 }
 
 /// This client includes user authorization, so it has access to the user
 /// private endpoints in [`OAuthClient`].
-#[maybe_async]
+#[cfg_attr(target_arch = "wasm32", maybe_async(?Send))]
+#[cfg_attr(not(target_arch = "wasm32"), maybe_async)]
 impl OAuthClient for AuthCodeSpotify {
     fn get_oauth(&self) -> &OAuth {
         &self.oauth
@@ -187,6 +193,24 @@ impl AuthCodeSpotify {
     #[must_use]
     pub fn with_config(creds: Credentials, oauth: OAuth, config: Config) -> Self {
         Self {
+            creds,
+            oauth,
+            config,
+            ..Default::default()
+        }
+    }
+
+    /// Build a new [`AuthCodeSpotify`] from an already generated token and
+    /// config. Use this to be able to refresh a token.
+    #[must_use]
+    pub fn from_token_with_config(
+        token: Token,
+        creds: Credentials,
+        oauth: OAuth,
+        config: Config,
+    ) -> Self {
+        Self {
+            token: Arc::new(Mutex::new(Some(token))),
             creds,
             oauth,
             config,

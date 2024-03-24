@@ -50,13 +50,18 @@
 //!
 //! ### Proxies
 //!
-//! [reqwest supports system proxies by default][reqwest-proxies]. It reads the
-//! environment variables `HTTP_PROXY` and `HTTPS_PROXY` environmental variables
-//! to set HTTP and HTTPS proxies, respectively.
+//! Both [reqwest][reqwest-proxies] and [ureq][ureq-proxying] support system
+//! proxies by default. They both read `http_proxy`, `https_proxy`, `all_proxy`
+//! and their uppercase variants `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`,
+//! although the specific logic implementations are a little different.
+//!
+//! See also:
+//! - [reqwest](https://docs.rs/reqwest/latest/src/reqwest/proxy.rs.html#897-920)
+//! - [ureq](https://docs.rs/ureq/latest/src/ureq/proxy.rs.html#73-95)
 //!
 //! ### Environmental variables
 //!
-//! RSpotify supports the `dotenv` crate, which allows you to save credentials
+//! RSpotify supports the `dotenvy` crate, which allows you to save credentials
 //! in a `.env` file. These will then be automatically available as
 //! environmental values when using methods like [`Credentials::from_env`].
 //!
@@ -103,6 +108,21 @@
 //! the [`.env` file](https://github.com/ramsayleung/rspotify/blob/master/.env)
 //! for more details.
 //!
+//! ### WebAssembly
+//!
+//! RSpotify supports the `wasm32-unknown-unknown` target in combination
+//! with the `client-reqwest` feature. HTTP requests must be processed async.
+//! Other HTTP client configurations are not supported.
+//!
+//! [Spotify recommends][spotify-auth-flows] using [`AuthCodePkceSpotify`] for
+//! authorization flows on the web.
+//!
+//! Importing the Client ID via `RSPOTIFY_CLIENT_ID` is not possible since WASM
+//! web runtimes are isolated from the host environment. The client ID must be
+//! passed explicitly to [`Credentials::new_pkce`]. Alternatively, it can be
+//! embedded at compile time with the [`std::env!`] or
+//! [`dotenv!`](https://crates.io/crates/dotenvy) macros.
+//!
 //! ### Examples
 //!
 //! There are some [available examples on the GitHub
@@ -119,7 +139,7 @@
 //! [spotify-register-app]: https://developer.spotify.com/dashboard/applications
 //! [spotify-client-creds]: https://developer.spotify.com/documentation/general/guides/authorization/client-credentials/
 //! [spotify-auth-code]: https://developer.spotify.com/documentation/general/guides/authorization/code-flow
-//! [spotify-auth-code-pkce]: https://developer.spotify.com/documentation/general/guides/authorization/code-flow
+//! [spotify-auth-code-pkce]: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow
 //! [spotify-implicit-grant]: https://developer.spotify.com/documentation/general/guides/authorization/implicit-grant
 
 mod auth_code;
@@ -222,6 +242,9 @@ pub enum ClientError {
 
     #[error("model error: {0}")]
     Model(#[from] model::ModelError),
+
+    #[error("Token is not valid")]
+    InvalidToken,
 }
 
 // The conversion has to be done manually because it's in a `Box<T>`
@@ -297,7 +320,7 @@ impl Default for Config {
             cache_path: PathBuf::from(DEFAULT_CACHE_PATH),
             pagination_chunks: DEFAULT_PAGINATION_CHUNKS,
             token_cached: false,
-            token_refreshing: false,
+            token_refreshing: true,
             token_callback_fn: Arc::new(None),
         }
     }
@@ -367,7 +390,7 @@ impl Credentials {
     pub fn from_env() -> Option<Self> {
         #[cfg(feature = "env-file")]
         {
-            dotenv::dotenv().ok();
+            dotenvy::dotenv().ok();
         }
 
         Some(Self {
@@ -422,7 +445,7 @@ impl OAuth {
     pub fn from_env(scopes: HashSet<String>) -> Option<Self> {
         #[cfg(feature = "env-file")]
         {
-            dotenv::dotenv().ok();
+            dotenvy::dotenv().ok();
         }
 
         Some(Self {
@@ -434,11 +457,13 @@ impl OAuth {
 }
 
 #[cfg(test)]
-mod test {
+pub mod test {
     use crate::{alphabets, generate_random_string, Credentials};
     use std::collections::HashSet;
+    use wasm_bindgen_test::*;
 
     #[test]
+    #[wasm_bindgen_test]
     fn test_generate_random_string() {
         let mut containers = HashSet::new();
         for _ in 1..101 {
@@ -448,6 +473,7 @@ mod test {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn test_basic_auth() {
         let creds = Credentials::new_pkce("ramsay");
         let headers = creds.auth_headers();
