@@ -8,13 +8,12 @@ use crate::{
     join_ids,
     model::*,
     util::{build_map, JsonBuilder},
-    ClientResult, OAuth, Token,
+    ClientResult, OAuth,
 };
 
 use std::collections::HashMap;
 
 use maybe_async::maybe_async;
-use rspotify_model::idtypes::{PlayContextId, PlayableId};
 use serde_json::{json, Map};
 use url::Url;
 

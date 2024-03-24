@@ -9,7 +9,7 @@ use crate::{
     model::*,
     sync::Mutex,
     util::build_map,
-    ClientError, ClientResult, Config, Credentials, Token,
+    ClientError, ClientResult, Config, Credentials,
 };
 
 use std::{collections::HashMap, fmt, ops::Not, sync::Arc};
